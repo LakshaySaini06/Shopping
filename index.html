@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kashmir Authentic Gallery | Weaving Tradition into Art</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Outfit:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-cream: #fdfaf5;
+            --accent-vibrant: #d4af37; /* Consistent gold accent */
+            --accent-teal: #a89470;    /* Muted brownish teal for harmony */
+            --accent-gold: #f3e5ab;    /* Soft vanilla gold */
+            --text-dark: #2c2518;      /* Dark brownish text for warmth */
+            --text-muted: #7a6e5a;
+            --card-shadow: 0 10px 40px rgba(184, 134, 11, 0.1);
+            --border-radius: 24px;
+            --glass: rgba(255, 255, 255, 0.65);
+            --glass-intense: rgba(255, 255, 255, 0.85);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1, h2, h3, .logo {
+            font-family: 'Playfair Display', serif;
+        }
+
+        body {
+            background-color: var(--bg-cream);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            background-image: url('./theme-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            line-height: 1.6;
+        }
+
+        #three-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4; /* Slightly dimmer for subtle effect */
+            pointer-events: none;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--accent-vibrant);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .tagline {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-icon {
+            cursor: pointer;
+            transition: transform 0.3s ease, color 0.3s ease;
+            color: var(--text-dark);
+            position: relative;
+        }
+
+        .nav-icon:hover {
+            transform: scale(1.1);
+            color: var(--accent-vibrant);
+        }
+
+        .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--accent-vibrant);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* Hero Section */
+        header {
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 4rem 5%;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 10vw, 5.5rem);
+            margin-bottom: 1rem;
+            line-height: 1;
+            background: linear-gradient(45deg, var(--text-dark), #b8860b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            max-width: 600px;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .shop-details-summary {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        .detail-item i {
+            color: var(--accent-teal);
+        }
+
+        /* Search & Filter Bar */
+        .filter-container {
+            padding: 2rem 5%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 72px;
+            background: var(--bg-cream);
+            z-index: 900;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border-radius: 30px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: white;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent-vibrant);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .category-filters {
+            display: flex;
+            gap: 0.8rem;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .cat-btn {
+            white-space: nowrap;
+            padding: 0.6rem 1.4rem;
+            border-radius: 20px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .cat-btn.active, .cat-btn:hover {
+            background: var(--accent-vibrant);
+            color: white;
+            border-color: var(--accent-vibrant);
+        }
+
+        /* Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2.5rem;
+            padding: 2rem 5% 5rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            cursor: pointer;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .product-image {
+            height: 350px;
+            width: 100%;
+            background-color: #f0f0f0;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .wishlist-tab {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            color: var(--text-muted);
+            transition: all 0.3s;
+        }
+
+        .wishlist-tab.active {
+            color: var(--accent-vibrant);
+        }
+
+        .product-content {
+            padding: 1.5rem;
+        }
+
+        .product-category {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--accent-teal);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .product-price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .product-rating {
+            display: flex;
+            gap: 2px;
+            margin-top: 0.5rem;
+            color: #ffc107;
+            font-size: 0.8rem;
+            align-items: center;
+        }
+
+        .rating-count {
+            color: var(--text-muted);
+            margin-left: 5px;
+            font-size: 0.75rem;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--text-dark);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            margin-top: 1rem;
+            cursor: pointer;
+            font-weight: 700;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .add-to-cart-btn:hover {
+            background: var(--accent-vibrant);
+        }
+
+        /* Modals & Overlays */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: none; /* Flex when active */
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalIn {
+            from { transform: translateY(40px) scale(0.95); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .close-modal {
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        /* Cart Specific */
+        .cart-item {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+
+        .cart-item-img {
+            width: 80px;
+            height: 100px;
+            border-radius: 12px;
+            background-size: cover;
+            background-position: center;
+            background-color: #f0f0f0;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .qty-btn {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        /* Admin Panel */
+        .admin-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        input, select, textarea {
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            outline: none;
+        }
+
+        .btn-vibrant {
+            background: var(--accent-vibrant);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        /* Auth */
+        .google-login-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            border: 1px solid #ddd;
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .google-login-btn:hover {
+            background: #f9f9f9;
+        }
+
+        /* Order History */
+        .order-card {
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-success { background: #d1fae5; color: #065f46; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .shop-details-summary {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .hero-title { font-size: 3rem; }
+            .filter-container { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="three-canvas"></canvas>
+
+    <nav>
+        <a href="#" class="logo-container" style="text-decoration: none;">
+            <span class="logo">Kashmir Authentic Gallery</span>
+            <span class="tagline">Weaving Tradition into Art</span>
+        </a>
+        <div class="nav-actions">
+            <div class="nav-icon" onclick="openModal('search-modal')"><i data-lucide="search"></i></div>
+            <div class="nav-icon" onclick="openModal('wishlist-modal')">
+                <i data-lucide="heart"></i>
+                <span class="badge" id="wishlist-count">0</span>
+            </div>
+            <div class="nav-icon" onclick="openModal('cart-modal')">
+                <i data-lucide="shopping-bag"></i>
+                <span class="badge" id="cart-count">0</span>
+            </div>
+            <div class="nav-icon" id="user-btn" onclick="toggleUserFlow()">
+                <i data-lucide="user"></i>
+            </div>
+            <div class="nav-icon" id="admin-trigger" onclick="openModal('admin-modal')" style="opacity: 0.3;">
+                <i data-lucide="settings"></i>
+            </div>
+        </div>
+    </nav>
+
+    <header>
+        <h1 class="hero-title">Timeless <br> Craftsmanship</h1>
+        <p class="hero-subtitle">Discover the soul of Kashmir through our handpicked collection of exquisite suit sets, pashminas, and artisanal woolens.</p>
+        
+        <div class="shop-details-summary">
+            <div class="detail-item">
+                <i data-lucide="map-pin"></i>
+                <span>Nutangram, Rishra, 712249,<br>West Bengal</span>
+            </div>
+            <div class="detail-item">
+                <i data-lucide="phone"></i>
+                <span>+91 6006675685</span>
+            </div>
+            <div class="detail-item">
+                <i data-lucide="mail"></i>
+                <span>kahanjaveed76@gmail.com</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="filter-container">
+        <div class="search-box">
+            <i data-lucide="search"></i>
+            <input type="text" id="main-search" placeholder="Search for Kurtas, Saree, Shawls..." oninput="filterProducts()">
+        </div>
+        <div class="category-filters" id="cat-filters">
+            <button class="cat-btn active" data-cat="all">All Items</button>
+            <button class="cat-btn" data-cat="Suit Set">Suit Sets</button>
+            <button class="cat-btn" data-cat="Suit Piece">Suit Pieces</button>
+            <button class="cat-btn" data-cat="Saree">Sarees</button>
+            <button class="cat-btn" data-cat="Shawl">Shawls</button>
+            <button class="cat-btn" data-cat="Sweater">Sweaters</button>
+            <button class="cat-btn" data-cat="Kashmiri Kurta Set">Kurta Sets</button>
+        </div>
+    </div>
+
+    <section class="product-grid" id="product-container"></section>
+
+    <!-- Cart Modal -->
+    <div class="modal-overlay" id="cart-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Your Shopping Bag</h2>
+                <i data-lucide="x" class="close-modal" onclick="closeModal('cart-modal')"></i>
+            </div>
+            <div class="modal-body">
+                <div id="cart-items-list"></div>
+                <div id="cart-empty-msg" style="text-align: center; padding: 2rem; display: none;">
+                    <i data-lucide="shopping-cart" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.2;"></i>
+                    <p>Your bag is empty. Let's add some art!</p>
+                </div>
+                <div id="cart-footer" style="margin-top: 2rem;">
+                    <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1.2rem; margin-bottom: 1.5rem;">
+                        <span>Total Amount</span>
+                        <span id="cart-total">INR 0</span>
+                    </div>
+                    <button class="btn-vibrant" style="width: 100%;" onclick="startCheckout()">Proceed to Checkout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Welcome Back</h2>
+                <i data-lucide="x" class="close-modal" onclick="closeModal('auth-modal')"></i>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; margin-bottom: 2rem; color: var(--text-muted);">Sign in to access your orders and wishlist.</p>
+                <div class="google-login-btn" onclick="simulateGoogleLogin()">
+                    <svg width="24" height="24" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                    Continue with Google
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Modal -->
+    <div class="modal-overlay" id="account-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>My Account</h2>
+                <i data-lucide="x" class="close-modal" onclick="closeModal('account-modal')"></i>
+            </div>
+            <div class="modal-body">
+                <div id="user-profile-summary" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+                    <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--accent-gold); display: flex; justify-content: center; align-items: center; color: white;">
+                        <i data-lucide="user" style="width: 32px; height: 32px;"></i>
+                    </div>
+                    <div>
+                        <h3 id="user-display-name">Javeed Khan</h3>
+                        <p id="user-display-email" style="font-size: 0.9rem; color: var(--text-muted);">kahanjaveed76@gmail.com</p>
+                    </div>
+                </div>
+                <h3>Order History</h3>
+                <div id="order-history-list" style="margin-top: 1rem;"></div>
+                <button class="btn-vibrant" style="width: 100%; background: #eee; color: #555; margin-top: 1rem;" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Modal -->
+    <div class="modal-overlay" id="admin-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Admin Dashboard</h2>
+                <i data-lucide="x" class="close-modal" onclick="closeModal('admin-modal')"></i>
+            </div>
+            <div class="modal-body">
+                <h3>Add New Product</h3>
+                <form class="admin-form" id="product-form" onsubmit="handleProductSubmit(event)">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" id="p-name" required placeholder="e.g. Kashmiri Silk Kurta">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="p-cat" required>
+                                <option value="Suit Set">Suit Set</option>
+                                <option value="Suit Piece">Suit Piece</option>
+                                <option value="Saree">Saree</option>
+                                <option value="Shawl">Shawl</option>
+                                <option value="Sweater">Sweater</option>
+                                <option value="Kashmiri Kurta Set">Kashmiri Kurta Set</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Price (INR)</label>
+                            <input type="number" id="p-price" required placeholder="600">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Image URL (Optional)</label>
+                        <input type="text" id="p-img" placeholder="https://image-url.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="p-desc" rows="3" placeholder="Hand-embroidered details..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-vibrant">Add to Catalog</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wishlist Modal -->
+    <div class="modal-overlay" id="wishlist-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Your Wishlist</h2>
+                <i data-lucide="x" class="close-modal" onclick="closeModal('wishlist-modal')"></i>
+            </div>
+            <div class="modal-body">
+                <div id="wishlist-items-list"></div>
+                <div id="wishlist-empty-msg" style="text-align: center; padding: 2rem; display: none;">
+                    <i data-lucide="heart" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.2;"></i>
+                    <p>No favorites yet. Explore the gallery!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA & STATE ---
+        let products = JSON.parse(localStorage.getItem('kag_products')) || [
+            { id: 1, name: 'Kashmiri Kurta', category: 'Suit Set', price: 600, rating: 4.8, reviews: 124, img: 'https://images.unsplash.com/photo-1590736962236-df3785169a4e?auto=format&fit=crop&q=80&w=400', desc: 'Beautifully embroidered kashmiri kurta with intricate floral work.' },
+            { id: 2, name: 'Royal Silk Saree', category: 'Saree', price: 4500, rating: 4.9, reviews: 86, img: 'https://images.unsplash.com/photo-1610030469983-98e33032867d?auto=format&fit=crop&q=80&w=400', desc: 'Hand-woven silk saree directly from the valleys of Kashmir.' },
+            { id: 3, name: 'Pashmina Shawl', category: 'Shawl', price: 8900, rating: 5.0, reviews: 42, img: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&q=80&w=400', desc: '100% pure wool pashmina with classic indie patterns.' },
+            { id: 4, name: 'Woolen Suit Piece', category: 'Suit Piece', price: 1200, rating: 4.5, reviews: 210, img: 'https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&q=80&w=400', desc: 'Unstitched woolen suit material for custom tailoring.' },
+            { id: 5, name: 'Hand-knitted Sweater', category: 'Sweater', price: 1500, rating: 4.7, reviews: 67, img: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&q=80&w=400', desc: 'Warm and cozy hand-knitted sweater with traditional motifs.' },
+            { id: 6, name: 'Printed Cotton Suit Set', category: 'Suit Set', price: 999, rating: 4.8, reviews: 15, img: './suit-set-1.jpg', desc: 'Printed cotton suit set' },
+            { id: 7, name: 'Cotton Suit Set', category: 'Suit Set', price: 1199, rating: 4.9, reviews: 8, img: './suit-set-2.jpg', desc: 'Cotton suit set' },
+            { id: 8, name: 'Kashmiri Kurta Set', category: 'Kashmiri Kurta Set', price: 699, rating: 5.0, reviews: 1, img: './suit-set-3.jpg', desc: 'hand stitched kurta and paijama' },
+            { id: 9, name: 'Hand Stitched Kurta', category: 'Kashmiri Kurta Set', price: 899, rating: 4.8, reviews: 5, img: './suit-set-4.jpg', desc: 'hand stitched kurta' },
+            { id: 10, name: 'Kashmiri Kurta Set', category: 'Kashmiri Kurta Set', price: 799, rating: 4.7, reviews: 2, img: './suit-set-4.jpg', desc: 'hand stitched kurta and paijama' }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem('kag_cart')) || [];
+        let wishlist = JSON.parse(localStorage.getItem('kag_wishlist')) || [];
+        let user = JSON.parse(localStorage.getItem('kag_user')) || null;
+        let orders = JSON.parse(localStorage.getItem('kag_orders')) || [];
+
+        let currentCategory = 'all';
+
+        // --- DOM ELEMENTS ---
+        const pGrid = document.getElementById('product-container');
+        const cartList = document.getElementById('cart-items-list');
+        const wishlistList = document.getElementById('wishlist-items-list');
+
+        // --- INITIALIZATION ---
+        function init() {
+            renderProducts();
+            updateStats();
+            lucide.createIcons();
+            initThree();
+            checkUser();
+        }
+
+        // --- UI RENDERING ---
+        function renderProducts() {
+            const searchTerm = document.getElementById('main-search').value.toLowerCase();
+            const filtered = products.filter(p => {
+                const matchesCat = currentCategory === 'all' || p.category === currentCategory;
+                const matchesSearch = p.name.toLowerCase().includes(searchTerm) || p.category.toLowerCase().includes(searchTerm);
+                return matchesCat && matchesSearch;
+            });
+
+            pGrid.innerHTML = filtered.map(p => `
+                <div class="product-card">
+                    <div class="product-image" style="background-image: url('${p.img}')">
+                        <div class="wishlist-tab ${wishlist.includes(p.id) ? 'active' : ''}" onclick="toggleWishlist(event, ${p.id})">
+                            <i data-lucide="heart" style="width: 18px; height: 18px;"></i>
+                        </div>
+                    </div>
+                    <div class="product-content">
+                        <span class="product-category">${p.category}</span>
+                        <h3 class="product-title">${p.name}</h3>
+                        <div class="product-rating">
+                            ${'★'.repeat(Math.floor(p.rating))}${p.rating % 1 >= 0.5 ? '½' : ''}
+                            <span class="rating-count">(${p.reviews} reviews)</span>
+                        </div>
+                        <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                            <span class="product-price">INR ${p.price}</span>
+                            <button class="add-to-cart-btn" onclick="addToCart(event, ${p.id})">
+                                <i data-lucide="plus" style="width: 16px; height: 16px;"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // --- CORE LOGIC ---
+        function toggleWishlist(e, id) {
+            e.stopPropagation();
+            const idx = wishlist.indexOf(id);
+            if (idx === -1) {
+                wishlist.push(id);
+            } else {
+                wishlist.splice(idx, 1);
+            }
+            saveState();
+            renderProducts();
+            updateStats();
+        }
+
+        function addToCart(e, id) {
+            e.stopPropagation();
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ id, qty: 1 });
+            }
+            saveState();
+            updateStats();
+            
+            // Animation feedback
+            const btn = e.currentTarget;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="check"></i> Added';
+            btn.style.background = 'var(--accent-teal)';
+            lucide.createIcons();
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+                lucide.createIcons();
+            }, 1000);
+        }
+
+        function updateStats() {
+            document.getElementById('cart-count').innerText = cart.reduce((a, b) => a + b.qty, 0);
+            document.getElementById('wishlist-count').innerText = wishlist.length;
+            
+            // Update cart total
+            const total = cart.reduce((sum, item) => {
+                const product = products.find(p => p.id === item.id);
+                return sum + (product ? product.price * item.qty : 0);
+            }, 0);
+            document.getElementById('cart-total').innerText = `INR ${total}`;
+        }
+
+        function saveState() {
+            localStorage.setItem('kag_products', JSON.stringify(products));
+            localStorage.setItem('kag_cart', JSON.stringify(cart));
+            localStorage.setItem('kag_wishlist', JSON.stringify(wishlist));
+            localStorage.setItem('kag_user', JSON.stringify(user));
+            localStorage.setItem('kag_orders', JSON.stringify(orders));
+        }
+
+        // --- MODAL CONTROLS ---
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+            if (id === 'cart-modal') renderCart();
+            if (id === 'wishlist-modal') renderWishlist();
+            if (id === 'account-modal') renderOrders();
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.style.display = 'none';
+            }
+        };
+
+        // --- FEATURE LOGIC ---
+        function filterProducts() {
+            renderProducts();
+        }
+
+        document.getElementById('cat-filters').addEventListener('click', (e) => {
+            if (e.target.classList.contains('cat-btn')) {
+                document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                currentCategory = e.target.dataset.cat;
+                renderProducts();
+            }
+        });
+
+        function renderCart() {
+            if (cart.length === 0) {
+                cartList.innerHTML = '';
+                document.getElementById('cart-empty-msg').style.display = 'block';
+                document.getElementById('cart-footer').style.display = 'none';
+            } else {
+                document.getElementById('cart-empty-msg').style.display = 'none';
+                document.getElementById('cart-footer').style.display = 'block';
+                cartList.innerHTML = cart.map(item => {
+                    const p = products.find(x => x.id === item.id);
+                    return `
+                        <div class="cart-item">
+                            <div class="cart-item-img" style="background-image: url('${p.img}')"></div>
+                            <div class="cart-item-info">
+                                <strong>${p.name}</strong>
+                                <div style="font-size: 0.9rem; color: var(--text-muted);">INR ${p.price}</div>
+                                <div class="quantity-controls">
+                                    <div class="qty-btn" onclick="updateQty(${p.id}, -1)">-</div>
+                                    <span>${item.qty}</span>
+                                    <div class="qty-btn" onclick="updateQty(${p.id}, 1)">+</div>
+                                </div>
+                            </div>
+                            <div style="font-weight: bold;">INR ${p.price * item.qty}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function renderWishlist() {
+            if (wishlist.length === 0) {
+                wishlistList.innerHTML = '';
+                document.getElementById('wishlist-empty-msg').style.display = 'block';
+            } else {
+                document.getElementById('wishlist-empty-msg').style.display = 'none';
+                wishlistList.innerHTML = wishlist.map(id => {
+                    const p = products.find(x => x.id === id);
+                    return `
+                        <div class="cart-item">
+                            <div class="cart-item-img" style="background-image: url('${p.img}')"></div>
+                            <div class="cart-item-info">
+                                <strong>${p.name}</strong>
+                                <div style="font-size: 0.9rem; color: var(--text-muted);">INR ${p.price}</div>
+                            </div>
+                            <button class="add-to-cart-btn" style="width: auto; padding: 0.5rem 1rem;" onclick="addToCart(event, ${p.id}); toggleWishlist(event, ${p.id})">Move to Bag</button>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function updateQty(id, delta) {
+            const item = cart.find(x => x.id === id);
+            item.qty += delta;
+            if (item.qty <= 0) {
+                cart = cart.filter(x => x.id !== id);
+            }
+            saveState();
+            updateStats();
+            renderCart();
+        }
+
+        // --- AUTH FLOW ---
+        function toggleUserFlow() {
+            if (user) openModal('account-modal');
+            else openModal('auth-modal');
+        }
+
+        function simulateGoogleLogin() {
+            user = { name: "Javeed Khan", email: "kahanjaveed76@gmail.com", avatar: "gold" };
+            saveState();
+            closeModal('auth-modal');
+            openModal('account-modal');
+            checkUser();
+        }
+
+        function logout() {
+            user = null;
+            saveState();
+            closeModal('account-modal');
+            checkUser();
+        }
+
+        function checkUser() {
+            const adminTrigger = document.getElementById('admin-trigger');
+            if (user && user.email === 'kahanjaveed76@gmail.com') {
+                adminTrigger.style.opacity = '1';
+                adminTrigger.style.pointerEvents = 'auto';
+            } else {
+                adminTrigger.style.opacity = '0.1';
+                adminTrigger.style.pointerEvents = 'none';
+            }
+        }
+
+        // --- ORDER LOGIC ---
+        function startCheckout() {
+            if (!user) {
+                alert("Please login with Google to complete your order.");
+                openModal('auth-modal');
+                return;
+            }
+            const orderId = "KAG-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+            const total = cart.reduce((sum, item) => sum + (products.find(p => p.id === item.id).price * item.qty), 0);
+            const newOrder = {
+                id: orderId,
+                date: new Date().toLocaleDateString(),
+                itemsCount: cart.reduce((a, b) => a + b.qty, 0),
+                total: total,
+                status: 'Processing'
+            };
+            orders.unshift(newOrder);
+            cart = [];
+            saveState();
+            updateStats();
+            closeModal('cart-modal');
+            alert(`Order Placed Successfully! Order ID: ${orderId}`);
+            openModal('account-modal');
+        }
+
+        function renderOrders() {
+            const history = document.getElementById('order-history-list');
+            if (orders.length === 0) {
+                history.innerHTML = '<p style="color: grey; font-style: italic;">No orders found yet.</p>';
+            } else {
+                history.innerHTML = orders.map(o => `
+                    <div class="order-card">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span class="order-status status-success">${o.status}</span>
+                            <span style="font-size: 0.8rem; color: grey;">${o.date}</span>
+                        </div>
+                        <div style="font-weight: 800;">Order #${o.id}</div>
+                        <div style="font-size: 0.9rem;">${o.itemsCount} Items • INR ${o.total}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // --- ADMIN FLOW ---
+        function handleProductSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('p-name').value;
+            const cat = document.getElementById('p-cat').value;
+            const price = parseInt(document.getElementById('p-price').value);
+            const img = document.getElementById('p-img').value || 'https://images.unsplash.com/photo-1590736962236-df3785169a4e?auto=format&fit=crop&q=80&w=400';
+            const desc = document.getElementById('p-desc').value;
+
+            const newProd = {
+                id: Date.now(),
+                name, category: cat, price, img, desc,
+                rating: 5.0, reviews: 1
+            };
+
+            products.unshift(newProd);
+            saveState();
+            renderProducts();
+            closeModal('admin-modal');
+            e.target.reset();
+            alert("Product added successfully!");
+        }
+
+        // --- THREE.JS BACKGROUND ---
+        function initThree() {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            // Create authentic indie block print shapes (Paisleys and Chinar leaves)
+            const paisleyShape = new THREE.Shape();
+            paisleyShape.moveTo(0, 0);
+            paisleyShape.bezierCurveTo(10, 10, 20, 0, 10, -10);
+            paisleyShape.bezierCurveTo(0, -20, -10, -10, -5, 0);
+            paisleyShape.bezierCurveTo(0, 10, 5, 20, 15, 15);
+            paisleyShape.bezierCurveTo(25, 10, 15, 0, 0, 0);
+
+            const leafShape = new THREE.Shape();
+            leafShape.moveTo(0, 0);
+            leafShape.lineTo(2, 5); leafShape.lineTo(0, 7); leafShape.lineTo(-2, 5);
+            leafShape.lineTo(-5, 8); leafShape.lineTo(-7, 6); leafShape.lineTo(-4, 3);
+            leafShape.lineTo(-8, 0); leafShape.lineTo(-6, -2); leafShape.lineTo(-3, 1);
+            leafShape.lineTo(0, -5);
+            leafShape.lineTo(3, 1); leafShape.lineTo(6, -2); leafShape.lineTo(8, 0);
+            leafShape.lineTo(4, 3); leafShape.lineTo(7, 6); leafShape.lineTo(5, 8);
+            leafShape.lineTo(2, 5); leafShape.lineTo(0, 0);
+
+            const petalShape = new THREE.Shape();
+            petalShape.moveTo(0, 0);
+            petalShape.quadraticCurveTo(5, 10, 0, 15);
+            petalShape.quadraticCurveTo(-5, 10, 0, 0);
+
+            const count = 70;
+            const geometries = [
+                new THREE.ShapeGeometry(paisleyShape),
+                new THREE.ShapeGeometry(leafShape),
+                new THREE.ShapeGeometry(petalShape)
+            ];
+            const meshes = [];
+
+            for(let i=0; i<count; i++) {
+                const geometry = geometries[Math.floor(Math.random() * geometries.length)];
+                // Using warm colors matching the floral theme (Gold, Soft Brown, Cream)
+                const colors = [0xd4af37, 0x7a6e5a, 0xf3e5ab];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                // Using solid materials with very low opacity for a spectral, artistic overlay
+                const material = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.12 });
+                const mesh = new THREE.Mesh(geometry, material);
+                
+                mesh.position.set(
+                    (Math.random() - 0.5) * 400,
+                    (Math.random() - 0.5) * 400,
+                    (Math.random() - 0.5) * 400
+                );
+                mesh.rotation.x = Math.random() * Math.PI;
+                mesh.rotation.y = Math.random() * Math.PI;
+                
+                const s = Math.random() * 2 + 0.5;
+                mesh.scale.set(s,s,s);
+                
+                scene.add(mesh);
+                meshes.push({
+                    mesh,
+                    speed: Math.random() * 0.005,
+                    rotSpeed: Math.random() * 0.01
+                });
+            }
+
+            camera.position.z = 100;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                meshes.forEach(m => {
+                    m.mesh.rotation.x += m.rotSpeed;
+                    m.mesh.rotation.y += m.rotSpeed;
+                    m.mesh.position.y += Math.sin(Date.now() * 0.001 + m.mesh.position.x) * 0.1;
+                });
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>
